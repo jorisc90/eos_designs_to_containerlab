@@ -1,0 +1,44 @@
+---
+#tasks file to just create a topology for a single host
+
+- name: Include connections per containerlab host variables
+  delegate_to: localhost
+  include_vars: 
+    file: "{{ containerlab_dir }}/containerlab_host_connections.yml"
+    name: connections_per_host
+  run_once: true
+
+- name: Remove the temporary file with connections per containerlab host
+  delegate_to: localhost
+  file:
+    path: "{{ containerlab_dir }}/containerlab_host_connections.yml"
+    state: absent
+  run_once: true
+
+- name: Include AVD nodes
+  delegate_to: localhost
+  include_vars: 
+    file: "{{ containerlab_dir }}/temp_AVD_ansible_hosts.yml"
+    name: avd_nodes_all
+  run_once: true
+
+- name: Remove the temporary file with AVD hosts
+  delegate_to: localhost
+  file:
+    path: "{{ containerlab_dir }}/temp_AVD_ansible_hosts.yml"
+    state: absent
+  run_once: true
+
+- name: Generate containerlab host to avd nodes mapping
+  yaml_templates_to_facts:
+    templates: 
+      - template: containerlab_host_avd_nodes.yml.j2
+  register: clab_to_avd_nodes_mapping
+  delegate_to: localhost
+  run_once: true
+
+- name: Generate containerlab topology
+  delegate_to: localhost
+  template:
+    src: containerlab_configuration.yml.j2
+    dest: "{{ containerlab_dir }}/{{ inventory_hostname }}_{{ containerlab_configuration }}"
