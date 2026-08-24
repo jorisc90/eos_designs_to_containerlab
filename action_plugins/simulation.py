@@ -141,7 +141,9 @@ class ActionModule(ActionBase):
       - {sim_ztp_folder}:/usr/share/nginx/html:ro
       mgmt-ipv4: {http_ip}
 """
-            nodes_dict[distributed_node] = node_string            
+            nodes_dict[distributed_node] = node_string
+        else:
+            nodes_dict[distributed_node] = node_string
         return nodes_dict
     
     def run(self, tmp=None, task_vars=None):
